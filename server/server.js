@@ -44,7 +44,7 @@ app.get('/todos/:id', (req, res) => {
   }
   Todo.findById(id).then((todo) => {
     if(!todo) {
-      res.status(404).send('Id not found');
+      return res.status(404).send('Id not found');
     }
     // Can send todo not as an object, but more useful to send it as
     // an object. Below = {todo: todo}
@@ -70,7 +70,8 @@ app.delete('/todos/:id', (req, res) => {
   });
 });
 
-// Update one record (put?)
+// Update one record (Unlike PUT, which replaces the whole record, PATCH
+// allows of updating only select fields - the ones we pick off with lodash, below)
 app.patch('/todos/:id', (req, res) => {
   let id = req.params.id;
   // lodash pick allows us to pick things off the body object for updating

@@ -2,7 +2,8 @@
 
 const express = require('express'),
   bodyParser = require('body-parser'),
-  {ObjectID} = require('mongodb');
+  {ObjectID} = require('mongodb'),
+  _ = require('lodash');
 
 const {mongoose} = require('./db/mongoose'),
   {Todo} = require('./models/todo'),
@@ -66,6 +67,37 @@ app.delete('/todos/:id', (req, res) => {
     res.send({todo});
   }).catch((e) => {
     res.status(400).send('Something went wrong in del one by id');
+  });
+});
+
+// Update one record (put?)
+app.patch('/todos/:id', (req, res) => {
+  let id = req.params.id;
+  // lodash pick allows us to pick things off the body object for updating
+  // the other properties (user id, completed at, etc.) not for the user to update
+  let body = _.pick(req.body, ['text', 'completed']);
+
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send('Id is not valid from app.patch');
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    // getTime sets a number w/ milliseconds since 1/1/70
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed  = false;
+    // reset time to null if no completion (ie, if user unchecks todo)
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
   });
 });
 

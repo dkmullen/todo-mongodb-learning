@@ -89,7 +89,7 @@ describe('GET /todos/:id', () => {
 
   it('should return 404 if todo id not found', (done) => {
     //  toHexString converts to str to be used in the url
-    let id = new ObjectID().toHexString;
+    let id = new ObjectID().toHexString();
     request(app)
       .get(`/todos/${id}`)
       .expect(404)
@@ -120,7 +120,7 @@ describe('DELETE /todos/:id', () => {
         }
 
         Todo.findById(hexId).then((todo) => {
-          expect(todo).toNotExist();
+          expect(todo).toBeFalsy();
           done();
         }).catch((e) => done(e));
 
@@ -128,7 +128,7 @@ describe('DELETE /todos/:id', () => {
   });
 
   it('should return a 404 if todo is not found', (done) => {
-    let hexId = new ObjectID().toHexString;
+    let hexId = new ObjectID().toHexString();
     request(app)
       .delete(`/todos/${hexId}`)
       .expect(404)

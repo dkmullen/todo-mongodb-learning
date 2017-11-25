@@ -1,5 +1,7 @@
 /*jshint esversion: 6 */
 
+require('./config/config');
+
 const express = require('express'),
   bodyParser = require('body-parser'),
   {ObjectID} = require('mongodb'),
@@ -10,7 +12,7 @@ const {mongoose} = require('./db/mongoose'),
   {User} = require('./models/user');
 
 let app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 

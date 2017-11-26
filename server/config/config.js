@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
 
+// Heroku sets this as 'production' automatically' so this doesn't affect the deployed app
 let env = process.env.NODE_ENV || 'development';
 console.log('env *****', env);
 

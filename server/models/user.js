@@ -60,7 +60,7 @@ UserSchema.methods.removeToken = function (token) {
 
   return user.update({
      $pull: { // Mongoose operator to pull items out of an array
-      tokens: {token} 
+      tokens: {token}
      }
    });
 };
@@ -101,9 +101,6 @@ UserSchema.statics.findByCredentials = function (email, password) {
     });
   });
 };
-
-
-
 
 UserSchema.pre('save', function (next) {
   let user = this;

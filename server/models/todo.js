@@ -16,6 +16,10 @@ let Todo = mongoose.model('Todo', {
   completedAt: {
     type: Number,
     default: null
+  },
+  _creator: { // underscore signifies this is an object id
+    type: mongoose.Schema.Types.ObjectId,
+    required: true // Gotta be logged in to interact with a todo
   }
 });
 

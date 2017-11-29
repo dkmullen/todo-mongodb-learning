@@ -17,9 +17,11 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.post('/todos', (req, res) => {
+// Make new todos with your _creator id
+app.post('/todos', authenticate, (req, res) => {
     let todo = new Todo({
-      text: req.body.text
+      text: req.body.text,
+      _creator: req.user._id
     });
 
     todo.save().then((doc) => {
@@ -29,9 +31,11 @@ app.post('/todos', (req, res) => {
     });
 });
 
-// Get all
-app.get('/todos', (req, res) => {
-  Todo.find().then((todos) => {
+// Get all todos by the user with this _creator id
+app.get('/todos', authenticate, (req, res) => {
+  Todo.find({
+    _creator: req.user._id
+  }).then((todos) => {
     res.send({todos});
   }, (e) => {
     res.status(400).send(e);
@@ -40,12 +44,15 @@ app.get('/todos', (req, res) => {
 
 // Get one by id
 // colon followed by a name is the pattern for mongo ids?
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
   let id = req.params.id;
   if(!ObjectID.isValid(id)) {
     return res.status(404).send('Id is not valid');
   }
-  Todo.findById(id).then((todo) => {
+  Todo.findOne({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if(!todo) {
       return res.status(404).send('Id not found');
     }
@@ -58,12 +65,15 @@ app.get('/todos/:id', (req, res) => {
 });
 
 // Delete one by id
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
   let id = req.params.id;
   if(!ObjectID.isValid(id)) {
     return res.status(404).send('Id is not valid from del one by id');
   }
-  Todo.findByIdAndRemove(id).then((todo) => {
+  Todo.findOneAndRemove({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if(!todo) {
       return res.status(404).send('ID not found (from delete one by id)');
     }
@@ -75,7 +85,7 @@ app.delete('/todos/:id', (req, res) => {
 
 // Update one record (Unlike PUT, which replaces the whole record, PATCH
 // allows of updating only select fields - the ones we pick off with lodash, below)
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
   let id = req.params.id;
   // lodash pick allows us to pick things off the body object for updating
   // the other properties (user id, completed at, etc.) not for the user to update
@@ -94,7 +104,10 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+  Todo.findOneAndUpdate({
+    _id: id,
+    _creator: req.user._id
+  }, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       return res.status(404).send();
     }

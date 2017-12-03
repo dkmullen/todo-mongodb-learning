@@ -17,6 +17,9 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
+// Direct app to puclic dir to find the files to serve (index, etc)
+app.use(express.static(__dirname + './../public'));
+
 // Make new todos with your _creator id
 app.post('/todos', authenticate, (req, res) => {
     let todo = new Todo({
@@ -33,6 +36,7 @@ app.post('/todos', authenticate, (req, res) => {
 
 // Get all todos by the user with this _creator id
 app.get('/todos', authenticate, (req, res) => {
+  console.log(req);
   Todo.find({
     _creator: req.user._id
   }).then((todos) => {
@@ -118,6 +122,7 @@ app.patch('/todos/:id', authenticate, (req, res) => {
   });
 });
 
+// create a new user - probably shouldn't get a token here, only at login
 app.post('/users', (req, res) => {
     let body = _.pick(req.body, ['email', 'password']);
     let user = new User(body);
@@ -132,10 +137,12 @@ app.post('/users', (req, res) => {
     });
 });
 
+// retrieve your own user object (ie, in Postman)
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });
 
+// login a pre-existing user
 app.post('/users/login', (req, res) => {
   let body = _.pick(req.body, ['email', 'password']);
 
@@ -148,6 +155,7 @@ app.post('/users/login', (req, res) => {
   });
 });
 
+// log out by deleting token
 app.delete('/users/me/token', authenticate, (req, res) => {
   req.user.removeToken(req.token).then(() => {
     res.status(200).send();

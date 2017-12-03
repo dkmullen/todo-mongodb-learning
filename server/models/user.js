@@ -35,7 +35,7 @@ let UserSchema = new mongoose.Schema({
   }]
 });
 
-UserSchema.methods.toJSON = function () {
+UserSchema.methods.toJSON = function () { // make user a JSON object
   let user = this,
     userObject = user.toObject();
 
@@ -44,14 +44,14 @@ UserSchema.methods.toJSON = function () {
 };
 
 UserSchema.methods.generateAuthToken = function () {
-  let user = this;
-  let access = 'auth';
-  let token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
+  let user = this; // ie, the current user
+  let access = 'auth'; // set access status tot he one we look for
+  let token = jwt.sign({_id: user._id.toHexString(), access},  process.env.JWT_SECRET).toString(); // make a token
 
-  user.tokens.push({access, token});
+  user.tokens.push({access, token}); // add acc status and token to the user object
 
-  return user.save().then(() => {
-    return token;
+  return user.save().then(() => { // save user with new creds
+    return token; // reutrn token for use on front end
   });
 };
 

@@ -15,6 +15,8 @@ const {mongoose} = require('./db/mongoose'),
 let app = express();
 const port = process.env.PORT;
 
+// W/o this line, can't get data to post from front end!
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Direct app to puclic dir to find the files to serve (index, etc)
@@ -149,6 +151,7 @@ app.post('/users/login', (req, res) => {
   User.findByCredentials(body.email, body.password).then((user) => {
     user.generateAuthToken().then((token) => {
       res.header('x-auth', token).send(user);
+      console.log(res.header);
     });
   }).catch((e) => {
     res.status(400).send();

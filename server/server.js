@@ -38,7 +38,6 @@ app.post('/todos', authenticate, (req, res) => {
 
 // Get all todos by the user with this _creator id
 app.get('/todos', authenticate, (req, res) => {
-  console.log(req);
   Todo.find({
     _creator: req.user._id
   }).then((todos) => {
@@ -147,11 +146,10 @@ app.get('/users/me', authenticate, (req, res) => {
 // login a pre-existing user
 app.post('/users/login', (req, res) => {
   let body = _.pick(req.body, ['email', 'password']);
-
+// TODO: check if there already is a token, del it?
   User.findByCredentials(body.email, body.password).then((user) => {
     user.generateAuthToken().then((token) => {
       res.header('x-auth', token).send(user);
-      console.log(res.header);
     });
   }).catch((e) => {
     res.status(400).send();
